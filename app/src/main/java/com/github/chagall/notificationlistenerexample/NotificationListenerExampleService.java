@@ -1,21 +1,26 @@
 package com.github.chagall.notificationlistenerexample;
 
+import android.app.Notification;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 /**
  * MIT License
- *
- *  Copyright (c) 2016 Fábio Alves Martins Pereira (Chagall)
- *
+ * <p>
+ * Copyright (c) 2016 Fábio Alves Martins Pereira (Chagall)
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +37,7 @@ public class NotificationListenerExampleService extends NotificationListenerServ
      */
     private static final class ApplicationPackageNames {
         public static final String FACEBOOK_PACK_NAME = "com.facebook.katana";
-        public static final String FACEBOOK_MESSENGER_PACK_NAME = "com.facebook.orca";
+        public static final String FACEBOOK_MESSENGER_PACK_NAME = "com.google.android.apps.maps";
         public static final String WHATSAPP_PACK_NAME = "com.whatsapp";
         public static final String INSTAGRAM_PACK_NAME = "com.instagram.android";
     }
@@ -54,52 +59,70 @@ public class NotificationListenerExampleService extends NotificationListenerServ
     }
 
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn){
-        int notificationCode = matchNotificationCode(sbn);
+    public void onNotificationPosted(StatusBarNotification sbn) {
+//        int notificationCode = matchNotificationCode(sbn);
+//        Log.v("zzz2", sbn.getNotification().extras.toString());
+//        Log.v("zzz2", sbn.getNotification().largeIcon);
 
-        if(notificationCode != InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE){
-            Intent intent = new  Intent("com.github.chagall.notificationlistenerexample");
-            intent.putExtra("Notification Code", notificationCode);
-            sendBroadcast(intent);
+        if (!sbn.getPackageName().equalsIgnoreCase("com.google.android.apps.maps")) {
+            return;
         }
+
+        Intent intent = new Intent("com.github.chagall.notificationlistenerexample");
+//            intent.putExtra("Notification Code", notificationCode);
+        intent.putExtra("Bitmap", sbn.getNotification().getLargeIcon());
+        intent.putExtra("What", sbn.getNotification().extras.toString().toUpperCase());
+//        Icon ic = sbn.getNotification().getLargeIcon();
+
+//            Bundle extras = sbn.getNotification().extras;
+//            Bitmap bigIcon = (Bitmap) extras.get(Notification.EXTRA_LARGE_ICON);
+//            Log.v("vvv", sbn.getNotification().getLargeIcon().);
+//            sbn.getNotification().getLargeIcon().writeToParcel(intent,0);
+
+
+//            intent.putExtra("Bitmap", bmp);
+//            Log.v("zzzl", ic.getResPackage().);
+//            ic.writeToParcel(intent,0);
+        sendBroadcast(intent);
     }
 
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn){
-        int notificationCode = matchNotificationCode(sbn);
+    public void onNotificationRemoved(StatusBarNotification sbn) {
+//        int notificationCode = matchNotificationCode(sbn);
 
-        if(notificationCode != InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE) {
-
-            StatusBarNotification[] activeNotifications = this.getActiveNotifications();
-
-            if(activeNotifications != null && activeNotifications.length > 0) {
-                for (int i = 0; i < activeNotifications.length; i++) {
-                    if (notificationCode == matchNotificationCode(activeNotifications[i])) {
-                        Intent intent = new  Intent("com.github.chagall.notificationlistenerexample");
-                        intent.putExtra("Notification Code", notificationCode);
-                        sendBroadcast(intent);
-                        break;
-                    }
-                }
-            }
-        }
+//        if(notificationCode != InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE) {
+//
+//            StatusBarNotification[] activeNotifications = this.getActiveNotifications();
+//
+//            if(activeNotifications != null && activeNotifications.length > 0) {
+//                for (int i = 0; i < activeNotifications.length; i++) {
+//                    if (notificationCode == matchNotificationCode(activeNotifications[i])) {
+//                        Intent intent = new  Intent("com.github.chagall.notificationlistenerexample");
+//                        intent.putExtra("Notification Code", notificationCode);
+//                        sendBroadcast(intent);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
     }
-
-    private int matchNotificationCode(StatusBarNotification sbn) {
-        String packageName = sbn.getPackageName();
-
-        if(packageName.equals(ApplicationPackageNames.FACEBOOK_PACK_NAME)
-                || packageName.equals(ApplicationPackageNames.FACEBOOK_MESSENGER_PACK_NAME)){
-            return(InterceptedNotificationCode.FACEBOOK_CODE);
-        }
-        else if(packageName.equals(ApplicationPackageNames.INSTAGRAM_PACK_NAME)){
-            return(InterceptedNotificationCode.INSTAGRAM_CODE);
-        }
-        else if(packageName.equals(ApplicationPackageNames.WHATSAPP_PACK_NAME)){
-            return(InterceptedNotificationCode.WHATSAPP_CODE);
-        }
-        else{
-            return(InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE);
-        }
-    }
+//
+//    private int matchNotificationCode(StatusBarNotification sbn) {
+//        String packageName = sbn.getPackageName();
+//        Log.v("Apalah", packageName);
+//
+//        if(packageName.equals(ApplicationPackageNames.FACEBOOK_PACK_NAME)
+//                || packageName.equals(ApplicationPackageNames.FACEBOOK_MESSENGER_PACK_NAME)){
+//            return(InterceptedNotificationCode.FACEBOOK_CODE);
+//        }
+//        else if(packageName.equals(ApplicationPackageNames.INSTAGRAM_PACK_NAME)){
+//            return(InterceptedNotificationCode.INSTAGRAM_CODE);
+//        }
+//        else if(packageName.equals(ApplicationPackageNames.WHATSAPP_PACK_NAME)){
+//            return(InterceptedNotificationCode.WHATSAPP_CODE);
+//        }
+//        else{
+//            return(InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE);
+//        }
+//    }
 }

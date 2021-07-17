@@ -7,11 +7,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
 import android.provider.Settings;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * MIT License
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView interceptedNotificationImageView;
     private ImageChangeBroadcastReceiver imageChangeBroadcastReceiver;
     private AlertDialog enableNotificationListenerAlertDialog;
+    private TextView textTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         // Here we get a reference to the image we will modify when a notification is received
         interceptedNotificationImageView
                 = (ImageView) this.findViewById(R.id.intercepted_notification_logo);
+        textTitle = (TextView) this.findViewById(R.id.textTitle);
 
         // If the user did not turn the notification listener service on we prompt him to do so
         if(!isNotificationServiceEnabled()){
@@ -72,23 +79,29 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Change Intercepted Notification Image
      * Changes the MainActivity image based on which notification was intercepted
-     * @param notificationCode The intercepted notification code
      */
-    private void changeInterceptedNotificationImage(int notificationCode){
-        switch(notificationCode){
-            case NotificationListenerExampleService.InterceptedNotificationCode.FACEBOOK_CODE:
-                interceptedNotificationImageView.setImageResource(R.drawable.facebook_logo);
-                break;
-            case NotificationListenerExampleService.InterceptedNotificationCode.INSTAGRAM_CODE:
-                interceptedNotificationImageView.setImageResource(R.drawable.instagram_logo);
-                break;
-            case NotificationListenerExampleService.InterceptedNotificationCode.WHATSAPP_CODE:
-                interceptedNotificationImageView.setImageResource(R.drawable.whatsapp_logo);
-                break;
-            case NotificationListenerExampleService.InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE:
-                interceptedNotificationImageView.setImageResource(R.drawable.other_notification_logo);
-                break;
-        }
+    private void changeInterceptedNotificationImage(Bundle bundle){
+        textTitle.setText(bundle.getString("What"));
+        interceptedNotificationImageView.setImageIcon(bundle.<Icon>getParcelable("Bitmap"));
+//        Log.v("zzzv", bundle.get);
+
+
+//        Log.v("what?", bmp.toString());
+//        interceptedNotificationImageView.setImageBitmap(bmp);
+//        switch(notificationCode){
+//            case NotificationListenerExampleService.InterceptedNotificationCode.FACEBOOK_CODE:
+//                interceptedNotificationImageView.setImageResource(R.drawable.facebook_logo);
+//                break;
+//            case NotificationListenerExampleService.InterceptedNotificationCode.INSTAGRAM_CODE:
+//                interceptedNotificationImageView.setImageResource(R.drawable.instagram_logo);
+//                break;
+//            case NotificationListenerExampleService.InterceptedNotificationCode.WHATSAPP_CODE:
+//                interceptedNotificationImageView.setImageResource(R.drawable.whatsapp_logo);
+//                break;
+//            case NotificationListenerExampleService.InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE:
+//                interceptedNotificationImageView.setImageResource(R.drawable.other_notification_logo);
+//                break;
+//        }
     }
 
     /**
@@ -124,8 +137,11 @@ public class MainActivity extends AppCompatActivity {
     public class ImageChangeBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int receivedNotificationCode = intent.getIntExtra("Notification Code",-1);
-            changeInterceptedNotificationImage(receivedNotificationCode);
+//            int receivedNotificationCode = intent.getIntExtra("Notification Code",-1);
+            Bundle bundle = intent.getExtras();
+            Icon bmp = (Icon) intent.getParcelableExtra("Bitmap");
+            changeInterceptedNotificationImage(bundle);
+//            textTitle.setText(receivedNotificationCode);
         }
     }
 
